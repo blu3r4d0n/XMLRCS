@@ -27,47 +27,59 @@ for event in EventSource(url):
         except ValueError:
             pass
         else:
-            rev_id = ''
-            patrolled=False
-            length_n=0
-            length_o=0
-            minor=False
-            old = ''
-            if ('revision' in change):
-                rev_id = 'revid="' + str(change['revision']['new']) + '" '
-                if ('old' in change['revision']):
-                    old = 'oldid="' + str(change['revision']['old']) + '" '
-            if ('patrolled' in change):
-                patrolled = change['patrolled']
-            if ('minor' in change):
-                minor = change['minor']
-            if ('length' in change):
-                length_n = change['length']['new']
-                if ('old' in change['length']):
-                    length_o = change['length']['old']
-            result = '<edit wiki="' + change['wiki'] + '" '
-            result += 'server_name="' + change['server_name'] + '" '
-            result += rev_id + old
-            result += 'summary=' + quoteattr(change['comment']) + ' '
-            result += 'title=' +  quoteattr(change['title']) + ' '
-            result += 'namespace="' + str(change['namespace']) + '" '
-            result += 'user=' + quoteattr(change['user']) + ' '
-            result += 'bot="' + str(change['bot']) + '" '
+            if(bool(change)):
+                rev_id = ''
+                patrolled=False
+                length_n=0
+                length_o=0
+                minor=False
+                old = ''
+                if ('revision' in change):
+                    rev_id = 'revid="' + str(change['revision']['new']) + '" '
+                    if ('old' in change['revision']):
+                        old = 'oldid="' + str(change['revision']['old']) + '" '
+                if ('patrolled' in change):
+                    patrolled = change['patrolled']
+                if ('minor' in change):
+                    minor = change['minor']
+                if ('length' in change):
+                    length_n = change['length']['new']
+                    if ('old' in change['length']):
+                        length_o = change['length']['old']
+                if ('wiki' in change):
+                    result = '<edit wiki="' + change['wiki'] + '" '
+                #else: 
+                    #print(change)
+                if ('server_name' in change): 
+                    result += 'server_name="' + change['server_name'] + '" '
+                result += rev_id + old
+                if ('comment' in change):
+                    result += 'summary=' + quoteattr(change['comment']) + ' '
+                if('title' in change):
+                    result += 'title=' +  quoteattr(change['title']) + ' '
+                if('namespace' in change):
+                    result += 'namespace="' + str(change['namespace']) + '" '
+                if('user' in change):
+                    result += 'user=' + quoteattr(change['user']) + ' '
+                if('bot' in change):
+                    result += 'bot="' + str(change['bot']) + '" '
             result += 'patrolled="' + str(patrolled) + '" '
             result += 'minor="' + str(minor) + '" '
-            result += 'type=' + quoteattr(change['type']) + ' '
+            if('type' in change):
+                result += 'type=' + quoteattr(change['type']) + ' '
+                if (change['type'] == 'log'):
+                    if ('log_id' in change):
+                        result += 'log_id="' + str(change['log_id']) + '" '
             result += 'length_new="' + str(length_n) + '" '
             result += 'length_old="' + str(length_o) + '" '
-            if (change['type'] == 'log'):
-                if ('log_id' in change):
-                    result += 'log_id="' + str(change['log_id']) + '" '
-                if ('log_type' in change):
-                    result += 'log_type=' + quoteattr(change['log_type']) + ' '
-                if ('log_action' in change):
-                    result += 'log_action=' + quoteattr(change['log_action']) + ' '
-                if ('log_action_comment' in change):
-                    result += 'log_action_comment=' + quoteattr(change['log_action_comment']) + ' '
-            result += 'timestamp="' + str(change['timestamp']) + '">'
+            if ('log_type' in change):
+                result += 'log_type=' + quoteattr(change['log_type']) + ' '
+            if ('log_action' in change):
+                result += 'log_action=' + quoteattr(change['log_action']) + ' '
+            if ('log_action_comment' in change):
+                result += 'log_action_comment=' + quoteattr(change['log_action_comment']) + ' '
+            if('timestamp' in change):
+                result += 'timestamp="' + str(change['timestamp']) + '">'
             result += '</edit>'
-            insert_to_redis(change['server_name'], result)
-
+            if('server_name' in change):
+                insert_to_redis(change['server_name'], result)
